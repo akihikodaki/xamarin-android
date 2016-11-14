@@ -55,6 +55,7 @@ UBUNTU_DEPS          = \
 	autotools-dev \
 	automake \
 	clang \
+	cmake \
 	curl \
 	g++-mingw-w64 \
 	gcc-mingw-w64 \

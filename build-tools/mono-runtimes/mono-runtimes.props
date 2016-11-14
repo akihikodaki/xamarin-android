@@ -39,13 +39,14 @@
     <_LlvmPrefixWin32>$(_LlvmOutputDirTop)\installed-win32\usr</_LlvmPrefixWin32>
     <_LlvmPrefixWin64>$(_LlvmOutputDirTop)\installed-win64\usr</_LlvmPrefixWin64>
 
-    <_LlvmCommonConfigureFlags>--enable-optimized --enable-assertions=no --enable-targets="arm,aarch64,x86"</_LlvmCommonConfigureFlags>
-    <_LlvmCommonConfigureFlags32>$(_LlvmCommonConfigureFlags) --prefix=$(_LlvmPrefix32) --cache-file=$(_CrossOutputDirTop)\llvm32.config.cache CC="$(HostCc32)" CXX="$(HostCxx32)"</_LlvmCommonConfigureFlags32>
-    <_LlvmCommonConfigureFlags64>$(_LlvmCommonConfigureFlags) --prefix=$(_LlvmPrefix64) --cache-file=$(_CrossOutputDirTop)\llvm64.config.cache CC="$(HostCc64)" CXX="$(HostCxx64)"</_LlvmCommonConfigureFlags64>
+    <_LlvmCommonConfigureFlags>-DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="ARM;AArch64;X86"</_LlvmCommonConfigureFlags>
+    <_LlvmCommonConfigureFlags32On64 Condition=" '$(HostBits)' == '64' ">-DLLVM_BUILD_32_BITS=ON</_LlvmCommonConfigureFlags32On64>
+    <_LlvmCommonConfigureFlags32>$(_LlvmCommonConfigureFlags) $(_LlvmCommonConfigureFlags32On64) -DCMAKE_INSTALL_PREFIX=$(_LlvmPrefix32) -DCMAKE_C_COMPILER="$(HostCcName)" -DCMAKE_CXX_COMPILER="$(HostCxxName)"</_LlvmCommonConfigureFlags32>
+    <_LlvmCommonConfigureFlags64>$(_LlvmCommonConfigureFlags) -DCMAKE_INSTALL_PREFIX=$(_LlvmPrefix64) -DCMAKE_C_COMPILER="$(HostCcName)" -DCMAKE_CXX_COMPILER="$(HostCxxName)"</_LlvmCommonConfigureFlags64>
 
-    <_LlvmCommonConfigureFlagsWin>$(_LlvmCommonConfigureFlags) --disable-pthreads --disable-zlib</_LlvmCommonConfigureFlagsWin>
-    <_LlvmCommonConfigureFlagsWin32>$(_LlvmCommonConfigureFlagsWin) --prefix=$(_LlvmPrefixWin32) --with-llvm=$(_LlvmPrefix32) --cache-file=$(_CrossOutputDirTop)\llvm-win32.config.cache CC="$(_MingwCc32)" CXX="$(_MingwCxx32)"</_LlvmCommonConfigureFlagsWin32>
-    <_LlvmCommonConfigureFlagsWin64>$(_LlvmCommonConfigureFlagsWin) --prefix=$(_LlvmPrefixWin64) --with-llvm=$(_LlvmPrefix64) --cache-file=$(_CrossOutputDirTop)\llvm-win64.config.cache CC="$(_MingwCc64)" CXX="$(_MingwCxx64)"</_LlvmCommonConfigureFlagsWin64>
+    <_LlvmCommonConfigureFlagsWin>$(_LlvmCommonConfigureFlags) -DCMAKE_SYSTEM_NAME=Windows -DLLVM_ENABLE_THREADS=OFF -DLLVM_ENABLE_ZLIB=OFF</_LlvmCommonConfigureFlagsWin>
+    <_LlvmCommonConfigureFlagsWin32>$(_LlvmCommonConfigureFlagsWin) -DCMAKE_INSTALL_PREFIX=$(_LlvmPrefixWin32) -DLLVM_TABLEGEN=$(_LlvmPrefix32)\bin\llvm-tblgen -DCMAKE_C_COMPILER="$(_MingwCc32)" -DCMAKE_CXX_COMPILER="$(_MingwCxx32)"</_LlvmCommonConfigureFlagsWin32>
+    <_LlvmCommonConfigureFlagsWin64>$(_LlvmCommonConfigureFlagsWin) -DCMAKE_INSTALL_PREFIX=$(_LlvmPrefixWin64) -DLLVM_TABLEGEN=$(_LlvmPrefix64)\bin\llvm-tblgen -DCMAKE_C_COMPILER="$(_MingwCc64)" -DCMAKE_CXX_COMPILER="$(_MingwCxx64)"</_LlvmCommonConfigureFlagsWin64>
 
     <!-- Cross compilers -->
     <_AotOffsetsDumperName>MonoAotOffsetsDumper.exe</_AotOffsetsDumperName>
@@ -79,12 +80,12 @@
     <_LlvmStdlib>-stdlib=libc++</_LlvmStdlib>
     <_LlvmExtraConfigureFlags>--enable-libcpp</_LlvmExtraConfigureFlags>
     <_LlvmOsxCommonConfigureFlags>$(_LlvmExtraConfigureFlags) CXXFLAGS="$(_LlvmStdlib) $(_OSXMinVersion)" LDFLAGS="$(_OSXMinVersion)"</_LlvmOsxCommonConfigureFlags>
-    <_LlvmConfigureFlags32>--build="$(_CrossConfigureBuildHost32)" $(_LlvmOsxCommonConfigureFlags) $(_LlvmCommonConfigureFlags32)</_LlvmConfigureFlags32>
-    <_LlvmConfigureFlags64>--build="$(_CrossConfigureBuildHost64)" $(_LlvmOsxCommonConfigureFlags) $(_LlvmCommonConfigureFlags64)</_LlvmConfigureFlags64>
+    <_LlvmConfigureFlags32>$(_LlvmOsxCommonConfigureFlags) $(_LlvmCommonConfigureFlags32)</_LlvmConfigureFlags32>
+    <_LlvmConfigureFlags64>$(_LlvmOsxCommonConfigureFlags) $(_LlvmCommonConfigureFlags64)</_LlvmConfigureFlags64>
     <_LlvmConfigureEnvironmentWin32>PATH="$(AndroidMxeFullPath)\bin:$(PATH)"</_LlvmConfigureEnvironmentWin32>
     <_LlvmConfigureEnvironmentWin64>PATH="$(AndroidMxeFullPath)\bin:$(PATH)"</_LlvmConfigureEnvironmentWin64>
-    <_LlvmConfigureFlagsWin32>--host="$(_CrossConfigureBuildHostWin32)" $(_LlvmCommonConfigureFlagsWin32)</_LlvmConfigureFlagsWin32>
-    <_LlvmConfigureFlagsWin64>--host="$(_CrossConfigureBuildHostWin64)" $(_LlvmCommonConfigureFlagsWin64)</_LlvmConfigureFlagsWin64>
+    <_LlvmConfigureFlagsWin32>$(_LlvmCommonConfigureFlagsWin32)</_LlvmConfigureFlagsWin32>
+    <_LlvmConfigureFlagsWin64>$(_LlvmCommonConfigureFlagsWin64)</_LlvmConfigureFlagsWin64>
   </PropertyGroup>
 
   <!-- LLVM+cross Linux -->
@@ -99,10 +100,10 @@
     <_CrossCXXFlagsWin>$(_CrossCXXFlags)</_CrossCXXFlagsWin>
     <_CrossConfigureFlags>--build=$(_CrossConfigureBuildHost) $(_CrossCommonConfigureFlags)</_CrossConfigureFlags>
 
-    <_LlvmConfigureFlags32>--build="$(_CrossConfigureBuildHost)" $(_LlvmCommonConfigureFlags32)</_LlvmConfigureFlags32>
-    <_LlvmConfigureFlags64>--build="$(_CrossConfigureBuildHost)" $(_LlvmCommonConfigureFlags64)</_LlvmConfigureFlags64>
-    <_LlvmConfigureFlagsWin32>--host="$(_CrossConfigureBuildHostWin32)" $(_LlvmCommonConfigureFlagsWin32)</_LlvmConfigureFlagsWin32>
-    <_LlvmConfigureFlagsWin64>--host="$(_CrossConfigureBuildHostWin64)" $(_LlvmCommonConfigureFlagsWin64)</_LlvmConfigureFlagsWin64>
+    <_LlvmConfigureFlags32>$(_LlvmCommonConfigureFlags32)</_LlvmConfigureFlags32>
+    <_LlvmConfigureFlags64>$(_LlvmCommonConfigureFlags64)</_LlvmConfigureFlags64>
+    <_LlvmConfigureFlagsWin32>$(_LlvmCommonConfigureFlagsWin32)</_LlvmConfigureFlagsWin32>
+    <_LlvmConfigureFlagsWin64>$(_LlvmCommonConfigureFlagsWin64)</_LlvmConfigureFlagsWin64>
   </PropertyGroup>
 
   <!-- Mono runtimes settings -->

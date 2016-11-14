@@ -55,24 +55,24 @@
     </ItemGroup>
 
     <ItemGroup>
-      <_LlvmArchive Include="$(_LlvmOutputDirTop)\%(_LlvmRuntime.BuildDir)\Release\lib\*.a" />
+      <_LlvmArchive Include="$(_LlvmOutputDirTop)\%(_LlvmRuntime.BuildDir)\lib\*.a" />
 
-      <_LlvmSourceBinary Include="@(_LlvmRuntime->'$(_LlvmOutputDirTop)\%(BuildDir)\Release\bin\opt%(ExeSuffix)')" Condition=" '%(_LlvmRuntime.InstallBinaries)' == 'true' " />
+      <_LlvmSourceBinary Include="@(_LlvmRuntime->'$(_LlvmOutputDirTop)\%(BuildDir)\bin\opt%(ExeSuffix)')" Condition=" '%(_LlvmRuntime.InstallBinaries)' == 'true' " />
       <_LlvmTargetBinary Include="@(_LlvmRuntime->'$(OutputPath)\%(InstallPath)opt%(ExeSuffix)')" Condition=" '%(_LlvmRuntime.InstallBinaries)' == 'true' "/>
 
-      <_LlvmSourceBinary Include="@(_LlvmRuntime->'$(_LlvmOutputDirTop)\%(BuildDir)\Release\bin\llc%(ExeSuffix)')" Condition=" '%(_LlvmRuntime.InstallBinaries)' == 'true' " />
+      <_LlvmSourceBinary Include="@(_LlvmRuntime->'$(_LlvmOutputDirTop)\%(BuildDir)\bin\llc%(ExeSuffix)')" Condition=" '%(_LlvmRuntime.InstallBinaries)' == 'true' " />
       <_LlvmTargetBinary Include="@(_LlvmRuntime->'$(OutputPath)\%(InstallPath)llc%(ExeSuffix)')" Condition=" '%(_LlvmRuntime.InstallBinaries)' == 'true' " />
     </ItemGroup>
   </Target>
 
   <Target Name="_ConfigureLlvm"
           DependsOnTargets="_PrepareLlvmItems"
-          Inputs="$(LlvmSourceFullPath)\Makefile.config.in;$(LlvmSourceFullPath)\configure;@(_LlvmSourceFile);@(_LlvmHeaderFile)"
+          Inputs="$(LlvmSourceFullPath)\Makefile.config.in;$(LlvmSourceFullPath)\CMakeLists.txt;@(_LlvmSourceFile);@(_LlvmHeaderFile)"
           Outputs="@(_LlvmMakefileConfig);@(_LlvmConfigureStamp)"
           Condition=" $(_LlvmNeeded) != '' ">
     <MakeDir Directories="$(_LlvmOutputDirTop)\%(_LlvmRuntime.BuildDir)" />
     <Exec
-        Command="%(_LlvmRuntime.ConfigureEnvironment) $(LlvmSourceFullPath)\configure %(_LlvmRuntime.ConfigureFlags)"
+        Command="%(_LlvmRuntime.ConfigureEnvironment) cmake $(LlvmSourceFullPath) %(_LlvmRuntime.ConfigureFlags)"
         WorkingDirectory="$(_LlvmOutputDirTop)\%(_LlvmRuntime.BuildDir)"
     />
     <Touch
@@ -355,7 +355,7 @@
   <Target Name="_GenerateCrossOffsetHeaderFiles"
       Inputs="$(MonoSourceFullPath)\configure"
       Outputs="$(IntermediateOutputPath)\%(_MonoCrossRuntime.Identity)\%(_MonoCrossRuntime.TargetAbi).h"
-      Condition=" '$(HostOS)' != 'Linux' And '@(_MonoCrossRuntime)' != '' ">
+      Condition=" '@(_MonoCrossRuntime)' != '' ">
     <Exec
         Command="make $(_AotOffsetsDumperName)"
         WorkingDirectory="$(_AotOffsetsDumperSourceDir)" 
@@ -445,6 +445,6 @@
   <Target Name="_CleanRuntimes"
       AfterTargets="Clean">
     <RemoveDir Directories="@(_MonoRuntime->'$(IntermediateOutputPath)\%(Identity)');@(_MonoCrossRuntime->'$(IntermediateOutputPath)\%(Identity)');$(_LlvmBuildDir32);$(_LlvmBuildDir64);$(_LlvmBuildDirWin32);$(_LlvmBuildDirWin64)" />
-    <Delete Files="@(_MonoRuntime->'$(IntermediateOutputPath)\%(Identity).config.cache');$(_CrossOutputPrefix)*.config.cache;$(_CrossOutputDirTop)\llvm*.config.cache" />
+    <Delete Files="@(_MonoRuntime->'$(IntermediateOutputPath)\%(Identity).config.cache');$(_CrossOutputPrefix)*.config.cache" />
   </Target>
 </Project>
